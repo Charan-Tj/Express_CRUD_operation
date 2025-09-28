@@ -1,0 +1,30 @@
+{
+  "name": "chod-manager",
+  "version": "1.0.0",
+  "description": "lets do it",
+  "keywords": [
+    "express",
+    "chod",
+    "i",
+    "will",
+    "do",
+    "iit",
+    "gotta",
+    "do",
+    "it"
+  ],
+  "license": "ISC",
+  "author": "Charan tej",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
