@@ -1,10 +1,33 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import logger from "./logger.js"; //sometimes just using logger gives error so use ./logger.js
+import morgan from "morgan";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
+
+const morganFormat = ":method :url :status :response-time ms";
+
+//app.use should be after | const app = express(); | and before | app.get |
+// we are basically in injecting middleware in between request and response
+// Morgan middleware for logging HTTP requests
+app.use(
+  morgan(morganFormat, {
+    stream: {
+      write: (message) => {
+        const logObject = {
+          method: message.split(" ")[0],
+          url: message.split(" ")[1],
+          status: message.split(" ")[2],
+          responseTime: message.split(" ")[3],
+        };
+        logger.info(JSON.stringify(logObject));
+      },
+    },
+  })
+);
 
 let appdata = [];
 let nextId = 1;
@@ -13,12 +36,12 @@ let nextId = 1;
 
 // Create - POST
 app.post("/data", (req, res) => {
+  console.log("POST");
   const { name, price } = req.body; //body is used to get data from request body
   const newdata = {
     id: nextId++,
     name,
-    price,
-    description: "you will get it one day",
+    price,  
   };
   appdata.push(newdata);
   res.status(201).send(newdata);
@@ -41,6 +64,7 @@ app.get("/list/:id", (req, res) => {
 
 // Update - PUT
 app.put("/list/:id", (req, res) => {
+  logger.info(`Updating item with id ${req.params.id}`);
   const item = appdata.find((t) => t.id === parseInt(req.params.id));
   if (!item) {
     return res.status(404).send("Item not found");
@@ -54,6 +78,7 @@ app.put("/list/:id", (req, res) => {
 
 // Delete - DELETE
 app.delete("/list/:id", (req, res) => {
+  logger.warn(`Deleting item with id ${req.params.id}`);
   const itemIndex = appdata.findIndex((t) => t.id === parseInt(req.params.id));
   if (itemIndex === -1) {
     return res.status(404).send("Item not found");
